@@ -86,7 +86,7 @@
         <a href="farm-info.html">Farm Dashboard</a>
         <a href="advisory.html">Irrigation Advisory</a>
         <a href="irrigation-table.html">Sensor Data</a>
-        <a href="registration.html">Contact</a>
+        <a href="registration_jquery.html">Contact</a>
     </nav>
 
     <main>
@@ -174,20 +174,20 @@
 
                 <div class="form-actions">
                     <button type="submit">Submit Registration</button>
-                    <button type="reset" class="btn-reset">Reset</button>
+                    <button type="reset" class="btn-reset" onclick="clearValidation()">Reset</button>
                 </div>
             </form>
         </section>
     </main>
     </div>
-
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>
         $(document).ready(function () {
+
             let summaryReportHTML = "";
 
-            function showAlert(message) {
-                $("#alert-message").text(message);
+            function showAlert(msg) {
+                $("#alert-message").text(msg);
                 $("#custom-alert").css("display", "flex");
             }
 
@@ -196,7 +196,6 @@
 
                 if (summaryReportHTML) {
                     $("main").html(summaryReportHTML);
-                    summaryReportHTML = "";
                 }
             };
 
@@ -218,18 +217,18 @@
 
                 let isValid = true;
 
-                let fname = $.trim($("#fname").val());
-                let mobile = $.trim($("#mobile").val());
-                let email = $.trim($("#email").val());
-                let village = $.trim($("#village").val());
-                let plotID = $.trim($("#plot_id").val());
-                let cropStage = $("#crop_stage").val();
-                let soilType = $("#soil_type").val();
-                let currentMoistureStr = $("#current_moisture").val();
-                let requiredMoistureStr = $("#required_moisture").val();
-                let irrigationMethod = $("#irrigation_method").val();
-                let regDate = $("#reg_date").val();
-                let farmPhoto = $("#farm_photo").val();
+                const fname = $("#fname").val().trim();
+                const mobile = $("#mobile").val().trim();
+                const email = $("#email").val().trim();
+                const village = $("#village").val().trim();
+                const plotID = $("#plot_id").val().trim();
+                const cropStage = $("#crop_stage").val();
+                const soilType = $("#soil_type").val();
+                const currentMoistureStr = $("#current_moisture").val();
+                const requiredMoistureStr = $("#required_moisture").val();
+                const irrigationMethod = $("#irrigation_method").val();
+                const regDate = $("#reg_date").val();
+                const farmPhoto = $("#farm_photo").val();
 
                 const nameRegex = /^[A-Za-z\s]+$/;
                 const mobileRegex = /^[6-9][0-9]{9}$/;
@@ -243,11 +242,21 @@
                     isValid = false;
                 }
 
+                if (!village) {
+                    showError("village", "Village/Location is required.");
+                    isValid = false;
+                }
+
+                if (!plotID) {
+                    showError("plot_id", "Plot ID is required.");
+                    isValid = false;
+                }
+
                 if (!mobile) {
                     showError("mobile", "Mobile Number is required.");
                     isValid = false;
                 } else if (!mobileRegex.test(mobile)) {
-                    showError("mobile", "Please enter a valid 10-digit mobile number.");
+                    showError("mobile", "Please enter a valid 10-digit mobile number starting with 6-9.");
                     isValid = false;
                 }
 
@@ -256,16 +265,6 @@
                     isValid = false;
                 } else if (!emailRegex.test(email)) {
                     showError("email", "Please enter a valid email address.");
-                    isValid = false;
-                }
-
-                if (!village) {
-                    showError("village", "Village/Location is required.");
-                    isValid = false;
-                }
-
-                if (!plotID) {
-                    showError("plot_id", "Plot ID is required.");
                     isValid = false;
                 }
 
@@ -279,28 +278,6 @@
                     isValid = false;
                 }
 
-                if (currentMoistureStr === "") {
-                    showError("current_moisture", "Current Soil Moisture is required.");
-                    isValid = false;
-                } else {
-                    let currentValue = parseFloat(currentMoistureStr);
-                    if (isNaN(currentValue) || currentValue < 0 || currentValue > 100) {
-                        showError("current_moisture", "Moisture must be between 0 and 100.");
-                        isValid = false;
-                    }
-                }
-
-                if (requiredMoistureStr === "") {
-                    showError("required_moisture", "Required Soil Moisture is required.");
-                    isValid = false;
-                } else {
-                    let requiredValue = parseFloat(requiredMoistureStr);
-                    if (isNaN(requiredValue) || requiredValue < 0 || requiredValue > 100) {
-                        showError("required_moisture", "Moisture must be between 0 and 100.");
-                        isValid = false;
-                    }
-                }
-
                 if (!irrigationMethod) {
                     showError("irrigation_method", "Please select an Irrigation Method.");
                     isValid = false;
@@ -310,8 +287,8 @@
                     showError("reg_date", "Registration Date is required.");
                     isValid = false;
                 } else {
-                    let selectedDate = new Date(regDate + "T00:00:00");
-                    let today = new Date();
+                    const selectedDate = new Date(regDate + "T00:00:00");
+                    const today = new Date();
                     today.setHours(0, 0, 0, 0);
 
                     if (selectedDate > today) {
@@ -320,57 +297,54 @@
                     }
                 }
 
+                if (currentMoistureStr === "") {
+                    showError("current_moisture", "Current Soil Moisture is required.");
+                    isValid = false;
+                }
+
+                if (requiredMoistureStr === "") {
+                    showError("required_moisture", "Required Soil Moisture is required.");
+                    isValid = false;
+                }
+
                 if (!farmPhoto) {
                     showError("farm_photo", "Please upload a farm photo.");
                     isValid = false;
-                } else {
-                    let file = $("#farm_photo")[0].files[0];
-                    if (file && file.type.indexOf("image/") !== 0) {
-                        showError("farm_photo", "Please upload a valid image file.");
-                        isValid = false;
-                    }
                 }
 
                 if (!isValid) {
                     return;
                 }
 
-                let currentSoilMoisture = parseFloat(currentMoistureStr);
-                let requiredSoilMoisture = parseFloat(requiredMoistureStr);
-                let moistureDeficit = requiredSoilMoisture - currentSoilMoisture;
+                const currentSoilMoisture = parseFloat(currentMoistureStr);
+                const requiredSoilMoisture = parseFloat(requiredMoistureStr);
+                const moistureDeficit = requiredSoilMoisture - currentSoilMoisture;
 
-                let statusMessage;
+                let statusMessage = "";
 
                 if (moistureDeficit > 0) {
                     statusMessage =
-                        "Moisture Deficit: " + moistureDeficit.toFixed(2) +
-                        "%. Irrigation is REQUIRED.";
+                        `Moisture Deficit: ${moistureDeficit.toFixed(2)}%. Irrigation is REQUIRED.`;
                 } else {
-                    moistureDeficit = 0;
                     statusMessage =
                         "Moisture Deficit: 0%. Soil moisture is sufficient. NO Irrigation required.";
                 }
 
                 summaryReportHTML = `
-                    <section>
+                    <div class="container" style="padding: 30px;">
                         <h2>Irrigation Status Report</h2>
                         <hr>
-                        <p><strong>Farmer Name:</strong> ${$("<div>").text(fname).html()}</p>
-                        <p><strong>Mobile Number:</strong> ${$("<div>").text(mobile).html()}</p>
-                        <p><strong>Email:</strong> ${$("<div>").text(email).html()}</p>
-                        <p><strong>Village/Location:</strong> ${$("<div>").text(village).html()}</p>
-                        <p><strong>Plot ID:</strong> ${$("<div>").text(plotID).html()}</p>
-                        <p><strong>Crop Stage:</strong> ${$("<div>").text(cropStage).html()}</p>
-                        <p><strong>Soil Type:</strong> ${$("<div>").text(soilType).html()}</p>
-                        <p><strong>Current Soil Moisture:</strong> ${currentSoilMoisture.toFixed(2)}%</p>
-                        <p><strong>Required Soil Moisture:</strong> ${requiredSoilMoisture.toFixed(2)}%</p>
-                        <p><strong>Moisture Deficit:</strong> ${moistureDeficit.toFixed(2)}%</p>
-                        <p><strong>Irrigation Method:</strong> ${$("<div>").text(irrigationMethod).html()}</p>
-                        <p><strong>Registration Date:</strong> ${$("<div>").text(regDate).html()}</p>
-                        <p><strong>Status:</strong> ${$("<div>").text(statusMessage).html()}</p>
+                        <p><strong>Farmer Name:</strong> ${fname}</p>
+                        <p><strong>Plot ID:</strong> ${plotID}</p>
+                        <p><strong>Current Soil Moisture:</strong> ${currentSoilMoisture}%</p>
+                        <p><strong>Required Soil Moisture:</strong> ${requiredSoilMoisture}%</p>
+                        <p><strong>Moisture Deficit:</strong> ${
+                            moistureDeficit > 0 ? moistureDeficit.toFixed(2) : 0
+                        }%</p>
+                        <p><strong>Status:</strong> ${statusMessage}</p>
                         <br>
                         <a href="registration.html">Go Back</a>
-                    </section>
+                    </div>
                 `;
 
                 showAlert(statusMessage);
@@ -380,12 +354,6 @@
                 setTimeout(function () {
                     clearValidation();
                 }, 0);
-            });
-
-            $(".modal-overlay").on("click", function (event) {
-                if (event.target === this) {
-                    closeAlert();
-                }
             });
         });
     </script>
