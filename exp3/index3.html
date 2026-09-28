@@ -1,0 +1,55 @@
+<script>
+      let reportHTML = "";
+
+      function showAlert(msg) {
+        document.getElementById("alert-message").innerText = msg;
+        document.getElementById("custom-alert").style.display = "flex";
+      }
+
+      function closeAlert() {
+        document.getElementById("custom-alert").style.display = "none";
+        if (reportHTML) {
+          document.write(reportHTML);
+        }
+      }
+
+      document.querySelector("form").addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        // Capture Inputs
+        let farmerName = document.getElementById("fname").value;
+        let plotID = document.getElementById("plot_id").value;
+        let cropStage = document.getElementById("crop_stage").value;
+        let soilMoisture = parseFloat(document.getElementById("soil_moisture").value);
+        let rainForecast = document.getElementById("rain_forecast").value;
+
+        let recommendation = "";
+
+        // Decision Rules Logic
+        if (rainForecast === "Yes") {
+          recommendation = "Postpone Irrigation";
+        } else if (soilMoisture < 30) {
+          recommendation = "Irrigation Required Immediately";
+        } else if (soilMoisture >= 30 && soilMoisture <= 50) {
+          recommendation = "Monitor Soil Moisture";
+        } else if (soilMoisture > 50) {
+          recommendation = "Irrigation Not Required";
+        }
+
+        // Store Report Data
+        reportHTML = `
+          <h2>Irrigation Decision Report</h2>
+          <hr>
+          <p><strong>Farmer Name:</strong> ${farmerName}</p>
+          <p><strong>Plot ID:</strong> ${plotID}</p>
+          <p><strong>Crop Stage:</strong> ${cropStage}</p>
+          <p><strong>Soil Moisture Level:</strong> ${soilMoisture}%</p>
+          <p><strong>Rainfall Expected:</strong> ${rainForecast}</p>
+          <p><strong>Recommendation:</strong> ${recommendation}</p>
+          <br>
+          <a href="registration.html">Go Back</a>
+        `;
+
+        showAlert(recommendation);
+      });
+    </script>

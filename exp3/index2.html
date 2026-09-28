@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Change by function</title>
+</head>
+<body>
+
+<div id="container">Existing Content</div>
+<button onclick="addElement()">Add New Paragraph</button>
+
+<script>
+function addElement() {
+  const newP = document.createElement("p");
+
+  newP.textContent = "This is a new dynamically created paragraph.";
+
+  document.getElementById("container").appendChild(newP);
+}
+</script>
+
+</body>
+</html>   
